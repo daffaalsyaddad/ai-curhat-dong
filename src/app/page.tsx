@@ -1,65 +1,232 @@
-import Image from "next/image";
+"use client";
+
+import { useState, useEffect } from "react";
+
+type AnalysisResult = {
+  score: number;
+  insight: string;
+  reality: string;
+  recommendation: string;
+};
 
 export default function Home() {
+  const [input, setInput] = useState("");
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [result, setResult] = useState<AnalysisResult | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const handleAnalyze = async () => {
+    if (!input.trim() || isAnalyzing) return;
+
+    setIsAnalyzing(true);
+    setResult(null);
+
+    try {
+      // 🚀 INI DIA PERUBAHANNYA: Kita manggil API beneran sekarang!
+      const res = await fetch("/api/analyze", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ text: input }),
+      });
+
+      if (!res.ok) {
+        throw new Error("Gagal mengambil data dari API.");
+      }
+
+      const data = await res.json();
+      setResult(data);
+    } catch (error) {
+      console.error("Gagal nyambung ke AI:", error);
+      // Kalau API lagi down, kita kasih pesan error, biar kamu tahu.
+      setResult({
+        score: 65,
+        insight: "Koneksi ke AI terputus. AI lagi capek kayaknya.",
+        reality: "Terkadang hal teknis bikin kita terhambat, tapi yaudah lah ya.",
+        recommendation: "Cek koneksi internet, cek terminal, atau coba beberapa saat lagi.",
+      });
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
+  const handleReset = () => {
+    setInput("");
+    setResult(null);
+  };
+
+  const isButtonDisabled = !mounted || !input.trim() || isAnalyzing;
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <main className="min-h-screen flex flex-col items-center bg-zinc-950 p-4 md:p-8 relative selection:bg-indigo-500/30 selection:text-indigo-200">
+      
+      {/* Background Gradient Spot */}
+      <div className="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-indigo-500/10 blur-[120px] rounded-full pointer-events-none"></div>
+
+      <div className="w-full max-w-3xl mx-auto space-y-12 z-10 my-auto py-12">
+        
+        {/* Header Section */}
+        <header className="space-y-4 animate-fade-in text-center md:text-left">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-zinc-900 border border-zinc-800 text-indigo-400 mb-2 shadow-sm">
+             <div className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></div>
+             <span className="text-xs font-semibold tracking-wide uppercase">
+               Rate My Life AI Engine
+             </span>
+          </div>
+          <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-zinc-100">
+            Analysis
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <p className="text-zinc-400 text-base max-w-xl leading-relaxed">
+            Dapatkan insight objektif dari AI. Tulis apa adanya, dan bersiap untuk reality check renyah namun jujur. Tanpa filter, tanpa bias.
           </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+        </header>
+
+        {/* Input Section */}
+        {!result && !isAnalyzing && (
+          <div className="bg-zinc-900 border border-zinc-800 shadow-2xl rounded-2xl p-2 animate-slide-up group ring-2 ring-transparent focus-within:ring-indigo-500/50 focus-within:border-transparent transition-all duration-300 relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent pointer-events-none"></div>
+            <div className="p-4 md:p-5 relative z-10">
+              <textarea
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Ceritakan kondisimu saat ini se-jujur mungkin..."
+                className="w-full h-40 md:h-48 bg-transparent text-zinc-200 placeholder:text-zinc-500 resize-none outline-none text-base md:text-lg leading-relaxed"
+                maxLength={1000}
+                spellCheck={false}
+              />
+            </div>
+            
+            <div className="flex items-center justify-between p-4 pt-3 border-t border-zinc-800/80 relative z-10">
+              <span className="text-xs text-zinc-500 font-medium">
+                <span className={input.length > 900 ? "text-red-400" : "text-zinc-300"}>{input.length}</span> / 1000
+              </span>
+              <button
+                onClick={handleAnalyze}
+                disabled={!!isButtonDisabled}  // ← INI SATU-SATUNYA PERUBAHAN
+                className="group relative px-6 py-2.5 bg-gradient-to-r from-indigo-500 to-blue-600 text-white font-semibold text-sm rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:from-indigo-400 hover:to-blue-500 transition-all duration-300 shadow-[0_4px_14px_0_rgba(99,102,241,0.39)] hover:shadow-[0_6px_20px_rgba(99,102,241,0.23)] hover:-translate-y-0.5"
+              >
+                <div className="flex items-center gap-2">
+                  <span>Analyze</span>
+                  <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                  </svg>
+                </div>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Loading Skeleton */}
+        {isAnalyzing && (
+          <div className="space-y-6 animate-slide-up mt-8">
+            <div className="saas-card flex flex-col items-center justify-center p-14 rounded-2xl">
+               <div className="relative flex flex-col items-center">
+                 <div className="w-12 h-12 mb-6 border-4 border-zinc-800 border-t-indigo-500 rounded-full animate-spin shadow-[0_0_15px_rgba(99,102,241,0.5)]"></div>
+                 <div className="h-4 w-48 shimmer rounded-full mb-3"></div>
+                 <div className="h-3 w-32 shimmer rounded-full opacity-60"></div>
+               </div>
+            </div>
+          </div>
+        )}
+
+        {/* Result Section */}
+        {result && !isAnalyzing && (
+          <div className="space-y-6 animate-slide-up mt-8">
+            
+            {/* Score Card */}
+            <div className="saas-card rounded-[2rem] p-10 md:p-14 flex flex-col items-center justify-center relative overflow-hidden group hover:border-indigo-500/30 transition-colors duration-500">
+              <div className="absolute inset-0 bg-gradient-to-b from-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              
+              <span className="text-sm font-bold tracking-widest text-zinc-500 uppercase mb-4 relative z-10">
+                Life Score
+              </span>
+              
+              <div className="flex items-start gap-1 relative z-10 mb-2">
+                <div className="absolute inset-0 bg-indigo-500/15 blur-[50px] rounded-full scale-150 pointer-events-none"></div>
+                <span className="relative text-8xl md:text-[9rem] leading-none font-bold tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white via-indigo-100 to-indigo-500 drop-shadow-md">
+                  {result.score}
+                </span>
+                <span className="relative text-2xl text-indigo-500 mt-4 font-bold tracking-tight">/ 100</span>
+              </div>
+            </div>
+
+            {/* Details Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              
+              <div className="saas-card hover:saas-card-hover rounded-xl p-6 group cursor-default">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-indigo-500/10 text-indigo-400 shadow-inner">
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider mb-0.5">Analogi AI</h3>
+                    <h4 className="text-sm font-semibold text-zinc-100">Insight</h4>
+                  </div>
+                </div>
+                <p className="text-zinc-400 group-hover:text-zinc-300 leading-relaxed text-sm md:text-base transition-colors duration-300">
+                  {result.insight}
+                </p>
+              </div>
+              
+              <div className="saas-card hover:saas-card-hover rounded-xl p-6 group cursor-default">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-pink-500/10 text-pink-400 shadow-inner">
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider mb-0.5">Fakta Pahit</h3>
+                    <h4 className="text-sm font-semibold text-zinc-100">Reality Check</h4>
+                  </div>
+                </div>
+                <p className="text-zinc-400 group-hover:text-zinc-300 leading-relaxed text-sm md:text-base transition-colors duration-300">
+                  {result.reality}
+                </p>
+              </div>
+
+              <div className="saas-card hover:saas-card-hover rounded-xl p-6 md:col-span-2 group cursor-default">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-emerald-500/10 text-emerald-400 shadow-inner">
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider mb-0.5">Tindakan</h3>
+                    <h4 className="text-sm font-semibold text-zinc-100">Saran Berikutnya</h4>
+                  </div>
+                </div>
+                <p className="text-zinc-400 group-hover:text-zinc-300 leading-relaxed text-sm md:text-base transition-colors duration-300">
+                  {result.recommendation}
+                </p>
+              </div>
+
+            </div>
+
+            <div className="flex justify-center md:justify-start pt-4">
+              <button
+                onClick={handleReset}
+                className="group flex items-center gap-2 px-5 py-2.5 text-zinc-400 hover:text-indigo-400 bg-zinc-900/50 hover:bg-zinc-800/80 border border-zinc-800 hover:border-indigo-500/30 rounded-lg text-sm font-medium transition-all duration-300"
+              >
+                <svg className="w-4 h-4 group-hover:-translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                Mulai Ulang
+              </button>
+            </div>
+            
+          </div>
+        )}
+
+      </div>
+    </main>
   );
 }
