@@ -85,6 +85,9 @@ export default function Home() {
           <p className="text-zinc-400 text-base md:text-lg max-w-xl leading-relaxed">
             Dapatkan insight objektif dari AI. Tulis apa adanya, dan bersiap untuk reality check renyah namun jujur. Tanpa filter, tanpa bias.
           </p>
+          <p className="text-zinc-400 text-base md:text-lg max-w-xl leading-relaxed">
+           Ini pakai geminuy, analoginya anaknya gemini lite cuy.
+          </p>
         </header>
 
         {/* Input Section */}
