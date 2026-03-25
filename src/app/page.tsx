@@ -26,7 +26,6 @@ export default function Home() {
     setResult(null);
 
     try {
-      // 🚀 INI DIA PERUBAHANNYA: Kita manggil API beneran sekarang!
       const res = await fetch("/api/analyze", {
         method: "POST",
         headers: {
@@ -43,7 +42,6 @@ export default function Home() {
       setResult(data);
     } catch (error) {
       console.error("Gagal nyambung ke AI:", error);
-      // Kalau API lagi down, kita kasih pesan error, biar kamu tahu.
       setResult({
         score: 65,
         insight: "Koneksi ke AI terputus. AI lagi capek kayaknya.",
@@ -63,39 +61,42 @@ export default function Home() {
   const isButtonDisabled = !mounted || !input.trim() || isAnalyzing;
 
   return (
-    <main className="min-h-screen flex flex-col items-center bg-zinc-950 p-4 md:p-8 relative selection:bg-indigo-500/30 selection:text-indigo-200">
+    <main className="min-h-screen flex flex-col bg-zinc-950 relative selection:bg-indigo-500/30 selection:text-indigo-200">
       
       {/* Background Gradient Spot */}
       <div className="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-indigo-500/10 blur-[120px] rounded-full pointer-events-none"></div>
 
-      <div className="w-full max-w-3xl mx-auto space-y-12 z-10 my-auto py-12">
+      {/* Container Utama (Pake flex-grow biar footer ke dorong ke bawah) */}
+      <div className="w-full max-w-3xl mx-auto px-4 md:px-8 pt-16 pb-8 flex-grow flex flex-col justify-center z-10">
         
-        {/* Header Section */}
-        <header className="space-y-4 animate-fade-in text-center md:text-left">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-zinc-900 border border-zinc-800 text-indigo-400 mb-2 shadow-sm">
+        {/* 🔥 HEADER YANG DIPERBAGUS 🔥 */}
+        <header className="space-y-6 animate-fade-in text-center flex flex-col items-center mb-12">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-zinc-900/80 border border-zinc-800 text-indigo-400 shadow-lg backdrop-blur-sm">
              <div className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></div>
-             <span className="text-xs font-semibold tracking-wide uppercase">
+             <span className="text-xs font-bold tracking-widest uppercase">
                Rate My Life AI Engine
              </span>
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-zinc-100">
-            Analysis
+          
+          <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-blue-400 pb-2">
+            Life Analysis
           </h1>
-          <p className="text-zinc-400 text-base max-w-xl leading-relaxed">
+          
+          <p className="text-zinc-400 text-base md:text-lg max-w-xl leading-relaxed">
             Dapatkan insight objektif dari AI. Tulis apa adanya, dan bersiap untuk reality check renyah namun jujur. Tanpa filter, tanpa bias.
           </p>
         </header>
 
         {/* Input Section */}
         {!result && !isAnalyzing && (
-          <div className="bg-zinc-900 border border-zinc-800 shadow-2xl rounded-2xl p-2 animate-slide-up group ring-2 ring-transparent focus-within:ring-indigo-500/50 focus-within:border-transparent transition-all duration-300 relative overflow-hidden">
+          <div className="bg-zinc-900/80 backdrop-blur-md border border-zinc-800 shadow-2xl rounded-2xl p-2 animate-slide-up group ring-2 ring-transparent focus-within:ring-indigo-500/50 focus-within:border-transparent transition-all duration-300 relative overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent pointer-events-none"></div>
             <div className="p-4 md:p-5 relative z-10">
               <textarea
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Ceritakan kondisimu saat ini se-jujur mungkin..."
-                className="w-full h-40 md:h-48 bg-transparent text-zinc-200 placeholder:text-zinc-500 resize-none outline-none text-base md:text-lg leading-relaxed"
+                className="w-full h-40 md:h-48 bg-transparent text-zinc-200 placeholder:text-zinc-600 resize-none outline-none text-base md:text-lg leading-relaxed"
                 maxLength={1000}
                 spellCheck={false}
               />
@@ -103,11 +104,11 @@ export default function Home() {
             
             <div className="flex items-center justify-between p-4 pt-3 border-t border-zinc-800/80 relative z-10">
               <span className="text-xs text-zinc-500 font-medium">
-                <span className={input.length > 900 ? "text-red-400" : "text-zinc-300"}>{input.length}</span> / 1000
+                <span className={input.length > 900 ? "text-red-400" : "text-zinc-400"}>{input.length}</span> / 1000
               </span>
               <button
                 onClick={handleAnalyze}
-                disabled={!!isButtonDisabled}  // ← INI SATU-SATUNYA PERUBAHAN
+                disabled={!!isButtonDisabled}
                 className="group relative px-6 py-2.5 bg-gradient-to-r from-indigo-500 to-blue-600 text-white font-semibold text-sm rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:from-indigo-400 hover:to-blue-500 transition-all duration-300 shadow-[0_4px_14px_0_rgba(99,102,241,0.39)] hover:shadow-[0_6px_20px_rgba(99,102,241,0.23)] hover:-translate-y-0.5"
               >
                 <div className="flex items-center gap-2">
@@ -123,12 +124,12 @@ export default function Home() {
 
         {/* Loading Skeleton */}
         {isAnalyzing && (
-          <div className="space-y-6 animate-slide-up mt-8">
-            <div className="saas-card flex flex-col items-center justify-center p-14 rounded-2xl">
+          <div className="space-y-6 animate-slide-up">
+            <div className="saas-card flex flex-col items-center justify-center p-14 rounded-2xl border border-zinc-800 bg-zinc-900/50">
                <div className="relative flex flex-col items-center">
                  <div className="w-12 h-12 mb-6 border-4 border-zinc-800 border-t-indigo-500 rounded-full animate-spin shadow-[0_0_15px_rgba(99,102,241,0.5)]"></div>
-                 <div className="h-4 w-48 shimmer rounded-full mb-3"></div>
-                 <div className="h-3 w-32 shimmer rounded-full opacity-60"></div>
+                 <div className="h-4 w-48 shimmer rounded-full mb-3 bg-zinc-800"></div>
+                 <div className="h-3 w-32 shimmer rounded-full opacity-60 bg-zinc-800"></div>
                </div>
             </div>
           </div>
@@ -136,10 +137,10 @@ export default function Home() {
 
         {/* Result Section */}
         {result && !isAnalyzing && (
-          <div className="space-y-6 animate-slide-up mt-8">
+          <div className="space-y-6 animate-slide-up">
             
             {/* Score Card */}
-            <div className="saas-card rounded-[2rem] p-10 md:p-14 flex flex-col items-center justify-center relative overflow-hidden group hover:border-indigo-500/30 transition-colors duration-500">
+            <div className="saas-card rounded-[2rem] p-10 md:p-14 flex flex-col items-center justify-center relative overflow-hidden group hover:border-indigo-500/30 transition-colors duration-500 border border-zinc-800 bg-zinc-900/50">
               <div className="absolute inset-0 bg-gradient-to-b from-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
               
               <span className="text-sm font-bold tracking-widest text-zinc-500 uppercase mb-4 relative z-10">
@@ -158,7 +159,7 @@ export default function Home() {
             {/* Details Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               
-              <div className="saas-card hover:saas-card-hover rounded-xl p-6 group cursor-default">
+              <div className="saas-card rounded-xl p-6 group cursor-default border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800/50 transition-colors">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-indigo-500/10 text-indigo-400 shadow-inner">
                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -175,7 +176,7 @@ export default function Home() {
                 </p>
               </div>
               
-              <div className="saas-card hover:saas-card-hover rounded-xl p-6 group cursor-default">
+              <div className="saas-card rounded-xl p-6 group cursor-default border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800/50 transition-colors">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-pink-500/10 text-pink-400 shadow-inner">
                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -192,7 +193,7 @@ export default function Home() {
                 </p>
               </div>
 
-              <div className="saas-card hover:saas-card-hover rounded-xl p-6 md:col-span-2 group cursor-default">
+              <div className="saas-card rounded-xl p-6 md:col-span-2 group cursor-default border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800/50 transition-colors">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-emerald-500/10 text-emerald-400 shadow-inner">
                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -211,10 +212,10 @@ export default function Home() {
 
             </div>
 
-            <div className="flex justify-center md:justify-start pt-4">
+            <div className="flex justify-center pt-4">
               <button
                 onClick={handleReset}
-                className="group flex items-center gap-2 px-5 py-2.5 text-zinc-400 hover:text-indigo-400 bg-zinc-900/50 hover:bg-zinc-800/80 border border-zinc-800 hover:border-indigo-500/30 rounded-lg text-sm font-medium transition-all duration-300"
+                className="group flex items-center gap-2 px-6 py-3 text-zinc-400 hover:text-indigo-400 bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-800 hover:border-indigo-500/50 rounded-xl text-sm font-semibold transition-all duration-300 shadow-lg"
               >
                 <svg className="w-4 h-4 group-hover:-translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -227,6 +228,14 @@ export default function Home() {
         )}
 
       </div>
+
+      {/* 🔥 NEW: COPYRIGHT FOOTER 🔥 */}
+      <footer className="w-full text-center py-6 mt-auto border-t border-zinc-900/50 bg-zinc-950/80 backdrop-blur-sm z-10">
+        <p className="text-zinc-600 text-sm font-medium tracking-wide">
+          &copy; {new Date().getFullYear()} <span className="text-zinc-400 hover:text-indigo-400 transition-colors duration-300 cursor-pointer">Daffa Al Syaddad</span>. All rights reserved.
+        </p>
+      </footer>
+
     </main>
   );
 }
